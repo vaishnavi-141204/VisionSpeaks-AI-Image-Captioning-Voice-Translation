@@ -11,7 +11,9 @@ import torch
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"  # Required for session
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+if not app.secret_key:
+    raise RuntimeError("Set the FLASK_SECRET_KEY environment variable.")  # Required for session
 
 # Folders
 UPLOAD_FOLDER = "uploads"
@@ -72,7 +74,7 @@ def index():
         audio_file = f"{uid}.mp3"
         audio_path = os.path.join(AUDIO_FOLDER, audio_file)
         gTTS(translated, lang=lang).save(audio_path)
-        audio_url = os.path.join("static/audio", audio_file)
+        audio_url = f"/static/audio/{audio_file}"
 
     return render_template(
         "index.html",
